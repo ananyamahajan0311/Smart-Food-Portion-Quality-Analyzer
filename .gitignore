@@ -6,3 +6,6 @@ __pycache__/
 *.jpg
 *.png
 food_quality_model.h5
+dataset/
+*.jpg
+*.png
