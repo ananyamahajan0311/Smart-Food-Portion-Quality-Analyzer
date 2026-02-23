@@ -1,15 +1,19 @@
-import os
-import random
+import tensorflow as tf
+import numpy as np
+import cv2
 
-MODEL_PATH = "food_quality_model.h5"
+model = tf.keras.models.load_model("food_quality_model.h5")
+
+IMG_SIZE = 224
+class_names = ["Average", "Good", "Poor"]
 
 def analyze_quality_dl(image):
-    if os.path.exists(MODEL_PATH):
-        # Real model will be loaded later
-        return "Model Loaded (Ready)", 1.0
-    else:
-        # Temporary simulated prediction
-        classes = ["Good", "Average", "Poor"]
-        quality = random.choice(classes)
-        confidence = round(random.uniform(0.80, 0.99), 2)
-        return quality + " (Simulated)", confidence
+    img = cv2.resize(image, (IMG_SIZE, IMG_SIZE))
+    img = img / 255.0
+    img = np.expand_dims(img, axis=0)
+
+    prediction = model.predict(img)
+    class_index = np.argmax(prediction)
+    confidence = np.max(prediction)
+
+    return class_names[class_index], confidence
