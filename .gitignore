@@ -1,11 +1,13 @@
 venv/
-dataset_dl/
 dataset/
+dataset_dl/
 __pycache__/
 *.pyc
 *.jpg
 *.png
 food_quality_model.h5
-dataset/
-*.jpg
-*.png
+training_history.json
+model_metrics.json
+confusion_matrix.png
+reports/
+temp_*.jpg
