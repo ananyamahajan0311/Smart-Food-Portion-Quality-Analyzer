@@ -1,27 +1,19 @@
 import cv2
 import numpy as np
 
-def segment_food(original_img):
-    # Convert to grayscale
-    gray = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
 
-    # Apply Otsu Thresholding
-    _, mask = cv2.threshold(gray, 0, 255, 
-                            cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+def segment_food(image):
+    mask = np.zeros(image.shape[:2], np.uint8)
 
-    # Morphological cleaning
-    kernel = np.ones((5,5), np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    bgModel = np.zeros((1,65), np.float64)
+    fgModel = np.zeros((1,65), np.float64)
 
-    # Find contours
-    contours, _ = cv2.findContours(mask, 
-                                   cv2.RETR_EXTERNAL, 
-                                   cv2.CHAIN_APPROX_SIMPLE)
+    height, width = image.shape[:2]
+    rect = (10, 10, width-20, height-20)
 
-    if contours:
-        largest = max(contours, key=cv2.contourArea)
-        clean_mask = np.zeros_like(mask)
-        cv2.drawContours(clean_mask, [largest], -1, 255, -1)
-        return clean_mask
+    cv2.grabCut(image, mask, rect, bgModel, fgModel, 5, cv2.GC_INIT_WITH_RECT)
 
-    return mask
+    mask2 = np.where((mask==2)|(mask==0), 0, 1).astype('uint8')
+    result = image * mask2[:, :, np.newaxis]
+
+    return mask2 * 255
