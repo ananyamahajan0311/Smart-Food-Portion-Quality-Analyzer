@@ -1,19 +1,31 @@
-import tensorflow as tf
 import numpy as np
 import cv2
+import tensorflow as tf
 
+# Load trained model (make sure file exists)
 model = tf.keras.models.load_model("food_quality_model.h5")
 
-IMG_SIZE = 224
-class_names = ["Average", "Good", "Poor"]
+classes = ["Average", "Good", "Poor"]
 
 def analyze_quality_dl(image):
-    img = cv2.resize(image, (IMG_SIZE, IMG_SIZE))
+
+    # Resize to model input size
+    img = cv2.resize(image, (224, 224))
     img = img / 255.0
     img = np.expand_dims(img, axis=0)
 
-    prediction = model.predict(img)
-    class_index = np.argmax(prediction)
-    confidence = np.max(prediction)
+    # Predict
+    predictions = model.predict(img)[0]
 
-    return class_names[class_index], confidence
+    predicted_index = np.argmax(predictions)
+    predicted_class = classes[predicted_index]
+    confidence = float(predictions[predicted_index])
+
+    # Create probability dictionary
+    class_probabilities = {
+        "Average": float(predictions[0]),
+        "Good": float(predictions[1]),
+        "Poor": float(predictions[2])
+    }
+
+    return predicted_class, confidence, class_probabilities
